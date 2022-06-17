@@ -1,0 +1,96 @@
+# Windows Customizations
+window:
+  opacity: 0.9
+  dimensions:
+    columns: 215
+    lines: 60
+  padding:
+    x: 10
+    y: 30
+  decorations: transparent
+scrolling:
+  history: 10000
+  multiplier: 3
+
+#Font configuration
+font:
+  normal:
+    family: MesloLGS NF
+    style: Regular
+  bold:
+    family: MesloLGS NF
+    style: Bold
+  italic:
+    family: MesloLGS NF
+    style: Italic
+  size: 12.0
+
+  offset:
+    x: 0
+    y: 0
+  glyph_offset:
+    x: 0
+    y: 0
+  debug:
+    persistent_logging: false
+  draw_bold_text_bright_colors: true
+
+colors:
+  # Default colors
+  primary:
+    background: '0x1b182c'
+    foreground: '0xcbe3e7'
+
+  # Normal colors
+  normal:
+    black:   '0x100e23'
+    red:     '0xff8080'
+    green:   '0x95ffa4'
+    yellow:  '0xffe9aa'
+    blue:    '0x91ddff'
+    magenta: '0xc991e1'
+    cyan:    '0xaaffe4'
+    white:   '0xcbe3e7'
+
+  # Bright colors
+  bright:
+    black:   '0x565575'
+    red:     '0xff5458'
+    green:   '0x62d196'
+    yellow:  '0xffb378'
+    blue:    '0x65b2ff'
+    magenta: '0x906cff'
+    cyan:    '0x63f2f1'
+    white:   '0xa6b3cc'
+
+  indexed_colors:
+    - { index: 16, color: '0xdc9656' }
+    - { index: 17, color: '0xa16946' }
+    - { index: 18, color: '0x282828' }
+    - { index: 19, color: '0x383838' }
+    - { index: 20, color: '0xb8b8b8' }
+    - { index: 21, color: '0xe8e8e8' }
+
+  selection:
+    text: '0x7ac7ff'
+    background: '0xdc3232'
+    white:   '0xffffff'
+
+cursor:
+  style:
+    shape: Beam
+    blinking: off
+    blink-interval: 750
+    unfocused_hollow: true
+
+key_bindings:
+  # Ajustes para teclado macOS español/Spanish de España con layout ISO (no ANSI); tecla Intro grande.
+  - { key: 10,        mods: Alt,    chars: "\x5c" } # barra invertida `\`
+  - { key: 18,        mods: Alt,    chars: "\x7c" } # barra vertical `|`
+  - { key: Key2,      mods: Alt,    chars: "@" } # arroba `@`
+  - { key: Key3,      mods: Alt,    chars: "#" } # almohadilla/cardinalidad `#`
+  - { key: Key6,      mods: Alt,    chars: "¬" } # negación en lógica `¬`
+  - { key: 39,        mods: Alt,    chars: "{" } # abre llaves `{`
+  - { key: 42,        mods: Alt,    chars: "}" } # cierra llaves `}`
+  - { key: 33,        mods: Alt,    chars: "[" } # abre corchetes `[`
+  - { key: 30,        mods: Alt,    chars: "]" } # cierra corchetes `]`
