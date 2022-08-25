@@ -1,4 +1,4 @@
 # Dotfiles
 ## Configuration files
-- Zsh
+- ![Zsh](https://github.com/hxst1/Dotfiles/tree/master/zshrc)
 - Alacritty
