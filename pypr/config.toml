@@ -1,0 +1,21 @@
+# pyprland — plugins para Hyprland
+[pyprland]
+plugins = ["scratchpads"]
+
+# Terminal desplegable estilo Quake (baja desde arriba con SUPER+T)
+[scratchpads.term]
+animation = "fromTop"
+command = "kitty --class scratch-term"
+class = "scratch-term"
+size = "50% 42%"
+position = "25% 6%"
+lazy = true
+
+# Claude Code desplegable (SUPER+A)
+[scratchpads.claude]
+animation = "fromTop"
+command = "kitty --class scratch-claude -e /home/eya/.local/bin/claude"
+class = "scratch-claude"
+size = "72% 75%"
+position = "14% 5%"
+lazy = true

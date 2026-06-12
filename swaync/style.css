@@ -1,0 +1,48 @@
+* {
+    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-size: 13px;
+}
+
+.notification-row { outline: none; }
+
+.notification {
+    border-radius: 14px;
+    margin: 8px;
+    background: rgba(26, 22, 34, 0.92);
+    border: 1px solid #4a3d54;
+}
+
+.notification-content {
+    padding: 10px;
+    color: #f0e6e0;
+}
+
+.summary { color: #c9a8d4; font-weight: bold; }
+.body { color: #f0e6e0; }
+.time { color: #e8b88a; }
+
+.close-button {
+    background: #4a3d54;
+    color: #f0e6e0;
+    border-radius: 50%;
+    margin: 6px;
+}
+.close-button:hover { background: #c9a8d4; color: #1a1622; }
+
+.control-center {
+    background: rgba(26, 22, 34, 0.95);
+    border-radius: 18px;
+    border: 1px solid #4a3d54;
+    margin: 10px;
+    padding: 10px;
+}
+
+.control-center .widget-title { color: #c9a8d4; font-size: 16px; font-weight: bold; }
+.control-center .widget-title button {
+    background: #4a3d54; color: #f0e6e0; border-radius: 8px; padding: 4px 10px;
+}
+.control-center .widget-title button:hover { background: #c9a8d4; color: #1a1622; }
+
+.widget-dnd { color: #f0e6e0; }
+.widget-dnd > switch { background: #4a3d54; border-radius: 12px; }
+.widget-dnd > switch:checked { background: #c9a8d4; }

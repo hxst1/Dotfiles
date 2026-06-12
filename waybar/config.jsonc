@@ -1,0 +1,78 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 28,
+    "margin-top": 8,
+    "margin-left": 12,
+    "margin-right": 12,
+    "spacing": 8,
+    "modules-left": ["custom/workspaces", "mpris"],
+    "modules-center": ["clock"],
+    "modules-right": ["custom/devserver", "custom/runcat", "pulseaudio", "network", "custom/notification", "tray"],
+
+    "custom/workspaces": {
+        "exec": "/home/eya/.config/waybar/scripts/workspaces-paged.sh",
+        "return-type": "json",
+        "format": "{}",
+        "tooltip": true,
+        "on-click": "/home/eya/.config/waybar/scripts/workspaces-paged.sh toggle",
+        "on-scroll-up": "/home/eya/.config/waybar/scripts/workspaces-paged.sh next",
+        "on-scroll-down": "/home/eya/.config/waybar/scripts/workspaces-paged.sh prev"
+    },
+    "mpris": {
+        "format": "{player_icon} {title} - {artist}",
+        "format-paused": "{status_icon} {title} - {artist}",
+        "max-length": 40,
+        "player-icons": { "default": "\uf001", "spotify": "\uf1bc" },
+        "status-icons": { "paused": "\uf04c", "playing": "\uf04b" }
+    },
+    "clock": {
+        "format": "\uf017 {:%a %d %b   %H:%M}",
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    },
+    "custom/runcat": {
+        "exec": "/home/eya/.config/waybar/modules/runcat-text/.venv/bin/python /home/eya/.config/waybar/modules/runcat-text/main.py",
+        "return-type": "json",
+        "tooltip": true,
+        "on-click": "/home/eya/.config/hypr/scripts/sysmenu-launch.sh"
+    },
+    "custom/devserver": {
+        "exec": "/home/eya/.config/waybar/scripts/devserver.sh",
+        "return-type": "json",
+        "interval": 3,
+        "on-click": "/home/eya/.config/waybar/scripts/devserver.sh open",
+        "on-click-right": "/home/eya/.config/waybar/scripts/devserver.sh kill"
+    },
+    "network": {
+        "format-ethernet": "\uf0ac {ipaddr}",
+        "format-disconnected": "\uf127 offline",
+        "tooltip-format": "{ifname}: {ipaddr}/{cidr}"
+    },
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "\uf026  muted",
+        "format-icons": {
+            "default": ["\uf026", "\uf027", "\uf028"]
+        },
+        "scroll-step": 5,
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-click-right": "pavucontrol",
+        "tooltip-format": "{desc}  \u00b7  {volume}%"
+    },
+    "custom/notification": {
+        "tooltip": false,
+        "format": "{icon}",
+        "format-icons": {
+            "notification": "\uf0f3",
+            "none": "\uf0f3",
+            "dnd-notification": "\uf1f6",
+            "dnd-none": "\uf1f6"
+        },
+        "return-type": "json",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
+    },
+    "tray": { "spacing": 10 }
+}

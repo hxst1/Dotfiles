@@ -1,0 +1,30 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+  "logo": {
+    "type": "builtin",
+    "color": { "1": "magenta", "2": "magenta" },
+    "padding": { "top": 1, "right": 3 }
+  },
+  "display": {
+    "separator": "  ",
+    "color": { "keys": "magenta", "title": "yellow" }
+  },
+  "modules": [
+    { "type": "title", "color": { "user": "magenta", "host": "yellow" } },
+    { "type": "separator", "string": "──────────────────────────────" },
+    { "type": "os", "key": "\uf303  OS" },
+    { "type": "kernel", "key": "\uf17c  Kernel" },
+    { "type": "uptime", "key": "\uf017  Uptime" },
+    { "type": "packages", "key": "\uf487  Packages" },
+    { "type": "shell", "key": "\uf120  Shell" },
+    { "type": "wm", "key": "\uf2d0  WM" },
+    { "type": "terminal", "key": "\uf120  Terminal" },
+    { "type": "cpu", "key": "\uf2db  CPU" },
+    { "type": "gpu", "key": "\uf26c  GPU" },
+    { "type": "memory", "key": "\uf538  Memory" },
+    { "type": "disk", "key": "\uf0a0  Disk" },
+    { "type": "localip", "key": "\uf0ac  Local IP" },
+    "break",
+    { "type": "colors", "paddingLeft": 2, "symbol": "circle" }
+  ]
+}
