@@ -32,6 +32,7 @@ Mi configuración de **Arch Linux + Hyprland**, con una paleta propia llamada **
 | Fetch | [fastfetch](https://github.com/fastfetch-cli/fastfetch) | [`fastfetch/`](fastfetch) | `~/.config/fastfetch/` |
 | Monitor | [btop](https://github.com/aristocratos/btop) (tema Sakura propio) | [`btop/`](btop) | `~/.config/btop/` |
 | PDF | [Zathura](https://pwmt.org/projects/zathura/) | [`zathura/`](zathura) | `~/.config/zathura/` |
+| Markdown | [glow](https://github.com/charmbracelet/glow) (tema Sakura propio) | [`glow/`](glow) | `~/.config/glow/` |
 | Wallpaper | [`wallpapers/`](wallpapers) | [`wallpapers/`](wallpapers) | `~/.config/wallpapers/` |
 
 > El módulo del gato de la barra es [runcat-text](https://github.com/bzglve/runcat-text) de **bzglve** (incluido en `waybar/modules/`).

@@ -35,6 +35,7 @@ if command -v bat >/dev/null; then
   alias cat='bat --paging=never'
   export BAT_THEME="ansi"
 fi
+command -v glow >/dev/null && alias md='glow -p'   # visor de markdown (tema Sakura en ~/.config/glow)
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
 command -v fnm    >/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
