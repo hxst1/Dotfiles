@@ -21,8 +21,14 @@ export PATH="$PNPM_HOME/bin:$PATH"
 export XDG_RUNTIME_DIR=/run/user/1000
 export WAYLAND_DISPLAY=wayland-1
 
-# Sugerencias en gris-lila tenue
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5a4d6b"
+# Sugerencias en gris niebla tenue
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#5b5e60"
+
+# Sin el "%" invertido de línea incompleta: zsh lo pinta y lo borra rellenando
+# con espacios hasta $COLUMNS; si la terminal es más estrecha de lo que zsh cree
+# (p. ej. el panel de Beacon, que ajusta su tamaño después de arrancar la shell),
+# el relleno salta de línea y el "%" se queda a la vista.
+PROMPT_EOL_MARK=''
 
 # ===== Herramientas modernas =====
 if command -v eza >/dev/null; then
@@ -35,13 +41,13 @@ if command -v bat >/dev/null; then
   alias cat='bat --paging=never'
   export BAT_THEME="ansi"
 fi
-command -v glow >/dev/null && alias md='glow -p'   # visor de markdown (tema Sakura en ~/.config/glow)
+command -v glow >/dev/null && alias md='glow -p'   # visor de markdown (tema Niebla en ~/.config/glow)
 command -v zoxide >/dev/null && eval "$(zoxide init zsh)"
-command -v fnm    >/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
+command -v fnm    >/dev/null && eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh)"
 command -v direnv >/dev/null && eval "$(direnv hook zsh)"
 
 # fzf — colores lila (los atajos Ctrl+R/Ctrl+T/Alt+C los da el plugin fzf)
-export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border --color=fg:#dfdae6,hl:#c9a8d4,fg+:#ffffff,hl+:#b388c4,border:#b388c4,prompt:#c9a8d4,pointer:#c9a8d4,marker:#b388c4"
+export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border=rounded --color=fg:#c8ccd0,hl:#e4e6e7,fg+:#ffffff,bg+:#26282a,hl+:#ffffff,border:#3a3c3f,prompt:#8b98a6,pointer:#e4e6e7,marker:#b8656a,info:#5b5e60"
 if command -v fd >/dev/null; then
   export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
   export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
@@ -72,3 +78,4 @@ if [[ -n $HYPRTERM && -f ~/.config/hyprterm/p10k-mobile.zsh ]]; then
 else
   [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 fi
+export MTAH_DATA_DIR="$HOME/mtah2027"

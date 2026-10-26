@@ -1,0 +1,250 @@
+/* ===== Thunderbird · "Niebla Mail" =====
+   Minimalista: los tres paneles como tarjetas flotantes con esquinas redondas
+   sobre un fondo casi negro, filas en píldora, barras planas y nada de ruido.
+   Paleta del rice: ~/.claude/CLAUDE.md */
+
+/* ---------- Paleta: Thunderbird construye su modo oscuro con estos tokens ---------- */
+:root {
+  --color-gray-05: #f4f5f6 !important;
+  --color-gray-10: #e4e6e7 !important;
+  --color-gray-20: #c8ccd0 !important;
+  --color-gray-30: #a3a8ac !important;
+  --color-gray-40: #6f7376 !important;
+  --color-gray-50: #5b5e60 !important;
+  --color-gray-60: #2c2e30 !important;
+  --color-gray-70: #222426 !important;
+  --color-gray-80: #1a1b1d !important;
+  --color-gray-90: #141516 !important;
+
+  --color-primary-default: #8b98a6 !important;
+  --color-primary-hover: #a7b4c1 !important;
+  --color-primary-pressed: #c8ccd0 !important;
+  --color-primary-soft: rgba(139, 152, 166, 0.18) !important;
+  --color-danger-default: #b8656a !important;
+
+  --selected-item-color: rgba(255, 255, 255, 0.09) !important;
+  --selected-item-text-color: #f4f5f6 !important;
+  --sidebar-highlight-background-color: rgba(255, 255, 255, 0.09) !important;
+  --sidebar-highlight-text-color: #f4f5f6 !important;
+  --sidebar-background-color: transparent !important;
+
+  /* Propios */
+  --niebla-bg: #0e0f10 !important;          /* el "escritorio" detrás de las tarjetas */
+  --niebla-card: #161719 !important;        /* las tarjetas */
+  --niebla-line: rgba(255, 255, 255, 0.06) !important;
+  --niebla-hover: rgba(255, 255, 255, 0.05) !important;
+  --niebla-radius: 14px !important;
+  --niebla-gap: 6px !important;
+
+  font-family: "Inter", sans-serif !important;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3c3f transparent;
+}
+
+/* ---------- Ventana: barra superior, pestañas y barra lateral planas ---------- */
+#messengerWindow,
+#tabmail,
+#tabpanelcontainer {
+  background: var(--niebla-bg) !important;
+}
+
+#unifiedToolbar,
+#tabs-toolbar,
+#spacesToolbar {
+  background: var(--niebla-bg) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Pestañas en píldora, sin la línea de color de arriba */
+.tabmail-tab .tab-background {
+  border: none !important;
+  border-radius: 10px !important;
+  margin-block: 4px !important;
+  background: transparent !important;
+}
+.tabmail-tab .tab-background[selected] {
+  background: var(--niebla-card) !important;
+  box-shadow: inset 0 0 0 1px var(--niebla-line) !important;
+}
+.tabmail-tab:hover .tab-background:not([selected]) {
+  background: var(--niebla-hover) !important;
+}
+.tab-line {
+  display: none !important;
+}
+
+/* Buscador global en píldora */
+global-search-bar,
+#unifiedToolbarContent search-bar {
+  --search-field-border-radius: 10px;
+  border-radius: 10px !important;
+}
+
+/* Iconos de la barra lateral de espacios: cuadrados redondeados */
+#spacesToolbar .spaces-toolbar-button {
+  border-radius: 10px !important;
+}
+
+/* Fuera la barra de estado: ruido */
+#status-bar {
+  display: none !important;
+}
+
+/* ---------- about:3pane: los tres paneles como tarjetas ---------- */
+#paneLayout {
+  background: var(--niebla-bg) !important;
+  padding: 0 var(--niebla-gap) var(--niebla-gap) 0 !important;
+}
+
+#folderPane,
+#threadPane,
+#messagePane,
+#accountCentralBrowser,
+#multiMessageBrowser,
+#messageBrowser,
+#webBrowser {
+  background: var(--niebla-card) !important;
+  border-radius: var(--niebla-radius) !important;
+  border: 1px solid var(--niebla-line) !important;
+  overflow: hidden !important;
+}
+
+#folderPane,
+#threadPane {
+  margin: 0 0 0 var(--niebla-gap) !important;
+}
+
+/* Separadores invisibles: el hueco entre tarjetas ya separa */
+#paneLayout hr[is="pane-splitter"],
+#paneLayout splitter {
+  background: transparent !important;
+  border: none !important;
+  min-width: var(--niebla-gap) !important;
+  min-height: var(--niebla-gap) !important;
+}
+
+/* Cabeceras de panel: limpias, sin bordes */
+#folderPaneHeaderBar,
+#threadPaneHeaderBar,
+#quick-filter-bar {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+#threadPaneFolderName {
+  font-weight: 600 !important;
+  color: #f4f5f6 !important;
+}
+
+/* Botones de cabecera ("Nuevo mensaje", etc.) en píldora */
+#folderPaneHeaderBar button,
+#threadPaneHeaderBar button,
+#quick-filter-bar button {
+  border-radius: 9px !important;
+}
+#folderPaneWriteMessage {
+  background: rgba(228, 230, 231, 0.92) !important;
+  color: #141516 !important;
+  border: none !important;
+  font-weight: 600 !important;
+}
+#folderPaneWriteMessage:hover {
+  background: #ffffff !important;
+}
+
+/* ---------- Iconos de carpeta monocromos (el color solo para lo que importa) ----------
+   !important: una hoja de usuario sin él pierde ante el :root del propio Thunderbird. */
+:root {
+  --folder-color-inbox: #c8ccd0 !important;
+  --folder-color-draft: #a3a8ac !important;
+  --folder-color-sent: #a3a8ac !important;
+  --folder-color-archive: #a3a8ac !important;
+  --folder-color-template: #a3a8ac !important;
+  --folder-color-outbox: #a3a8ac !important;
+  --folder-color-trash: #a3a8ac !important;
+  --folder-color-folder: #8a8f93 !important;
+  --folder-color-folder-filter: #8a8f93 !important;
+  --folder-color-newsletter: #8a8f93 !important;
+  --folder-color-rss: #8a8f93 !important;
+  --folder-color-folder-rss: #8a8f93 !important;
+  --folder-color-spam: #c98287 !important;     /* rojo apagado: lo único con color */
+  --folder-color-warning: #c98287 !important;
+}
+
+/* ---------- Árbol de carpetas: filas en píldora ---------- */
+#folderTree {
+  --tree-view-bg: transparent;
+  background: transparent !important;
+  padding: 2px 6px !important;
+}
+#folderTree li > .container {
+  border-radius: 9px !important;
+  margin-block: 1px !important;
+}
+#folderTree li > .container:hover {
+  background: var(--niebla-hover) !important;
+}
+#folderTree li.selected > .container,
+#folderTree:focus-within li.selected > .container {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #f4f5f6 !important;
+}
+/* Contador de no leídos: chip discreto */
+#folderTree .unread-count {
+  border-radius: 99px !important;
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #e4e6e7 !important;
+}
+
+/* ---------- Lista de mensajes ---------- */
+#threadTree {
+  --tree-view-bg: transparent;
+  --tree-card-background: transparent;
+  --tree-card-border: transparent;
+  background: transparent !important;
+}
+
+/* Vista de tarjetas: cada mensaje una tarjeta redondeada con aire */
+#threadTree[rows="thread-card"] tr[is="thread-card"] .card-layout {
+  border-radius: 12px !important;
+  margin: 2px 8px !important;
+  border: 1px solid transparent !important;
+  background: transparent !important;
+}
+#threadTree[rows="thread-card"] tr[is="thread-card"]:hover .card-layout {
+  background: var(--niebla-hover) !important;
+}
+#threadTree[rows="thread-card"] tr[is="thread-card"].selected .card-layout,
+#threadTree[rows="thread-card"] tr[is="thread-card"][aria-selected="true"] .card-layout {
+  background: rgba(255, 255, 255, 0.09) !important;
+  border-color: var(--niebla-line) !important;
+}
+/* Leídos en gris niebla, no leídos en blanco */
+#threadTree tr[is="thread-card"] {
+  color: #a3a8ac !important;
+}
+#threadTree tr[is="thread-card"][data-properties~="unread"] {
+  color: #f4f5f6 !important;
+}
+
+/* Vista de tabla: filas redondeadas también */
+#threadTree tr[is="thread-row"] {
+  border-radius: 8px !important;
+}
+#threadTree tr[is="thread-row"].selected {
+  background: rgba(255, 255, 255, 0.09) !important;
+  color: #f4f5f6 !important;
+}
+
+/* ---------- Menús y paneles emergentes ---------- */
+menupopup,
+panel {
+  --panel-border-radius: 12px;
+  --panel-background-color: #1a1b1d;
+  --panel-border-color: rgba(255, 255, 255, 0.08);
+}
+menupopup menuitem,
+menupopup menu {
+  border-radius: 7px !important;
+}

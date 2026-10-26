@@ -2,27 +2,142 @@
     "$schema": "/etc/xdg/swaync/configSchema.json",
     "positionX": "right",
     "positionY": "top",
-    "control-center-margin-top": 10,
-    "control-center-margin-bottom": 10,
-    "control-center-margin-right": 10,
-    "control-center-margin-left": 10,
-    "notification-icon-size": 48,
+    "layer": "overlay",
+    "control-center-layer": "top",
+    "layer-shell": true,
+    "cssPriority": "user",
+    "control-center-margin-top": 6,
+    "control-center-margin-bottom": 12,
+    "control-center-margin-right": 12,
+    "control-center-margin-left": 0,
+    "notification-2fa-action": true,
+    "notification-inline-replies": true,
+    "notification-icon-size": 40,
     "notification-body-image-height": 100,
     "notification-body-image-width": 200,
     "timeout": 6,
     "timeout-low": 4,
     "timeout-critical": 0,
     "fit-to-screen": true,
-    "control-center-width": 380,
-    "notification-window-width": 360,
+    "relative-timestamps": true,
+    "control-center-width": 400,
+    "notification-window-width": 380,
     "keyboard-shortcuts": true,
     "image-visibility": "when-available",
-    "transition-time": 200,
+    "transition-time": 220,
     "hide-on-clear": false,
     "hide-on-action": true,
-    "widgets": ["title", "dnd", "notifications"],
+    "script-fail-notify": true,
+    "widgets": [
+        "menubar",
+        "buttons-grid",
+        "volume",
+        "mpris",
+        "title",
+        "notifications"
+    ],
     "widget-config": {
-        "title": { "text": "Notificaciones", "clear-all-button": true, "button-text": "Limpiar" },
-        "dnd": { "text": "No molestar" }
+        "menubar": {
+            "menu#power": {
+                "label": "⏻  Sesión",
+                "position": "right",
+                "animation-type": "slide_down",
+                "animation-duration": 220,
+                "actions": [
+                    {
+                        "label": "   Bloquear",
+                        "command": "/home/eya/.config/swaync/scripts/run-closed.sh lock"
+                    },
+                    {
+                        "label": "   Suspender",
+                        "command": "systemctl suspend"
+                    },
+                    {
+                        "label": "   Cerrar sesión",
+                        "command": "hyprctl dispatch exit"
+                    },
+                    {
+                        "label": "   Reiniciar",
+                        "command": "systemctl reboot"
+                    },
+                    {
+                        "label": "   Apagar",
+                        "command": "systemctl poweroff"
+                    }
+                ]
+            }
+        },
+        "buttons-grid": {
+            "buttons-per-row": 4,
+            "actions": [
+                {
+                    "label": "󰂯",
+                    "tooltip": "Bluetooth on/off",
+                    "type": "toggle",
+                    "command": "/home/eya/.config/swaync/scripts/toggle.sh bt",
+                    "update-command": "/home/eya/.config/swaync/scripts/toggle.sh bt get"
+                },
+                {
+                    "label": "󰂱",
+                    "tooltip": "Dispositivos Bluetooth (vincular)",
+                    "command": "/home/eya/.config/hypr/scripts/panel.sh bluetooth"
+                },
+                {
+                    "label": "󰍬",
+                    "tooltip": "Silenciar micrófono",
+                    "type": "toggle",
+                    "command": "/home/eya/.config/swaync/scripts/toggle.sh mic",
+                    "update-command": "/home/eya/.config/swaync/scripts/toggle.sh mic get"
+                },
+                {
+                    "label": "󰕾",
+                    "tooltip": "Mezclador de audio / dispositivos",
+                    "command": "/home/eya/.config/hypr/scripts/panel.sh audio"
+                },
+                {
+                    "label": "󰂛",
+                    "tooltip": "No molestar",
+                    "type": "toggle",
+                    "command": "swaync-client -d -sw",
+                    "update-command": "swaync-client -D"
+                },
+                {
+                    "label": "󰹑",
+                    "tooltip": "Captura de región",
+                    "command": "/home/eya/.config/swaync/scripts/run-closed.sh grim-region"
+                },
+                {
+                    "label": "󰈊",
+                    "tooltip": "Cuentagotas de color",
+                    "command": "/home/eya/.config/swaync/scripts/run-closed.sh picker"
+                },
+                {
+                    "label": "󰊗",
+                    "tooltip": "Modo gaming",
+                    "type": "toggle",
+                    "command": "/home/eya/.config/swaync/scripts/toggle.sh gaming",
+                    "update-command": "/home/eya/.config/swaync/scripts/toggle.sh gaming get"
+                }
+            ]
+        },
+        "volume": {
+            "label": "󰕾",
+            "show-per-app": true,
+            "show-per-app-icon": true,
+            "show-per-app-label": false,
+            "expand-button-label": "",
+            "collapse-button-label": "",
+            "empty-list-label": "Ninguna app reproduciendo"
+        },
+        "mpris": {
+            "image-size": 64,
+            "image-radius": 12,
+            "blur": true
+        },
+        "title": {
+            "text": "Notificaciones",
+            "clear-all-button": true,
+            "button-text": "Limpiar"
+        }
     }
 }

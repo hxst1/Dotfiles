@@ -1,48 +1,147 @@
+/* ===== swaync · tema Niebla — Centro de control estilo macOS =====
+   Parte del estilo por defecto y solo redefine colores y formas.
+   El blur lo pone Hyprland (layerrule swaync-*). */
+@import url("/etc/xdg/swaync/style.css");
+
+:root {
+  --cc-bg: rgba(16, 17, 18, 0.94);
+  --noti-border-color: rgba(255, 255, 255, 0.09);
+  --noti-bg: 24, 25, 27;
+  --noti-bg-alpha: 0.96;
+  --noti-bg-darker: rgba(255, 255, 255, 0.04);
+  --noti-bg-hover: rgba(255, 255, 255, 0.09);
+  --noti-bg-focus: rgba(255, 255, 255, 0.07);
+  --noti-close-bg: rgba(255, 255, 255, 0.10);
+  --noti-close-bg-hover: rgba(255, 255, 255, 0.20);
+  --text-color: #e4e6e7;
+  --text-color-disabled: #6f7376;
+  --bg-selected: #e4e6e7;
+  --notification-icon-size: 40px;
+  --border-radius: 16px;
+  --notification-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --font-size-body: 13px;
+  --font-size-summary: 14px;
+  --mpris-album-art-overlay: rgba(12, 13, 14, 0.55);
+  --mpris-button-hover: rgba(255, 255, 255, 0.12);
+  --mpris-album-art-icon-size: 64px;
+  --widget-volume-row-icon-size: 20px;
+}
+
 * {
-    font-family: "JetBrainsMono Nerd Font", sans-serif;
-    font-size: 13px;
+  font-family: "Inter", "JetBrainsMono Nerd Font", sans-serif;
 }
 
-.notification-row { outline: none; }
-
-.notification {
-    border-radius: 14px;
-    margin: 8px;
-    background: rgba(26, 22, 34, 0.92);
-    border: 1px solid #4a3d54;
-}
-
-.notification-content {
-    padding: 10px;
-    color: #f0e6e0;
-}
-
-.summary { color: #c9a8d4; font-weight: bold; }
-.body { color: #f0e6e0; }
-.time { color: #e8b88a; }
-
-.close-button {
-    background: #4a3d54;
-    color: #f0e6e0;
-    border-radius: 50%;
-    margin: 6px;
-}
-.close-button:hover { background: #c9a8d4; color: #1a1622; }
-
+/* --- Panel --- */
 .control-center {
-    background: rgba(26, 22, 34, 0.95);
-    border-radius: 18px;
-    border: 1px solid #4a3d54;
-    margin: 10px;
-    padding: 10px;
+  background: rgba(16, 17, 18, 0.95);   /* casi opaco: lo de detrás no debe leerse */
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 22px;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.06);
+  padding: 6px;
 }
 
-.control-center .widget-title { color: #c9a8d4; font-size: 16px; font-weight: bold; }
-.control-center .widget-title button {
-    background: #4a3d54; color: #f0e6e0; border-radius: 8px; padding: 4px 10px;
-}
-.control-center .widget-title button:hover { background: #c9a8d4; color: #1a1622; }
+.control-center .control-center-list-placeholder { color: #5b5e60; }
 
-.widget-dnd { color: #f0e6e0; }
-.widget-dnd > switch { background: #4a3d54; border-radius: 12px; }
-.widget-dnd > switch:checked { background: #c9a8d4; }
+/* Cada bloque del centro de control es una "tarjeta" de cristal */
+.widget-menubar,
+.widget-buttons-grid,
+.widget-volume,
+.widget-mpris {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  margin: 6px 8px;
+  padding: 8px;
+}
+
+/* --- Menubar (título + menú Sesión) --- */
+.widget-menubar > .menu-button-bar label { color: #e4e6e7; font-weight: 600; font-size: 14px; }
+.widget-menubar > .menu-button-bar > .widget-menubar-container button,
+.widget-menubar > revealer * button {
+  background: rgba(255, 255, 255, 0.07);
+  color: #e4e6e7;
+  border: none;
+  border-radius: 10px;
+  padding: 4px 12px;
+  box-shadow: none;
+}
+.widget-menubar > .menu-button-bar > .widget-menubar-container button:hover,
+.widget-menubar > revealer * button:hover { background: rgba(255, 255, 255, 0.16); }
+.widget-menubar > revealer * button { margin-top: 4px; }
+
+/* --- Interruptores rápidos: círculos tipo iOS --- */
+.widget-buttons-grid flowboxchild > button {
+  font-family: "JetBrainsMono Nerd Font";
+  font-size: 19px;
+  min-width: 0;
+  min-height: 50px;
+  margin: 3px;
+  padding: 0;
+  border-radius: 14px;
+  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  color: #c8ccd0;
+  box-shadow: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.widget-buttons-grid flowboxchild > button:hover { background: rgba(255, 255, 255, 0.16); color: #ffffff; }
+/* Activo = blanco sólido con icono oscuro (como el Centro de control de iOS) */
+.widget-buttons-grid flowboxchild > button.toggle:checked {
+  background: rgba(244, 245, 246, 0.92);
+  color: #141516;
+}
+
+/* --- Volumen --- */
+.widget-volume { color: #c8ccd0; }
+.widget-volume > box > label { font-family: "JetBrainsMono Nerd Font"; font-size: 16px; margin-right: 6px; }
+.widget-volume button {
+  background: transparent; border: none; box-shadow: none; color: #8a8f93;
+  font-family: "JetBrainsMono Nerd Font";
+}
+.widget-volume button:hover { color: #ffffff; }
+.per-app-volume { margin-top: 6px; }
+scale trough { background: rgba(255, 255, 255, 0.10); border-radius: 99px; min-height: 6px; }
+scale highlight { background: #e4e6e7; border-radius: 99px; }
+scale slider { background: #ffffff; min-width: 16px; min-height: 16px; margin: -5px 0; border-radius: 99px; box-shadow: 0 1px 4px rgba(0,0,0,.4); }
+
+/* --- Reproductor --- */
+.widget-mpris { padding: 4px; }
+.widget-mpris .widget-mpris-player { border-radius: 14px; margin: 0; box-shadow: none; }
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-title { font-weight: 600; font-size: 14px; color: #f4f5f6; }
+.widget-mpris .widget-mpris-player .mpris-overlay .widget-mpris-subtitle { font-size: 12px; color: #a3a8ac; }
+.widget-mpris > box > button { color: #8a8f93; }
+
+/* --- Cabecera de notificaciones --- */
+.widget-title { margin: 10px 14px 2px 14px; }
+.widget-title > label { color: #8a8f93; font-weight: 600; font-size: 12px; }
+.widget-title > button {
+  background: rgba(255, 255, 255, 0.07); color: #c8ccd0; border: none;
+  border-radius: 99px; padding: 2px 12px; font-size: 12px; box-shadow: none;
+}
+.widget-title > button:hover { background: rgba(255, 255, 255, 0.16); color: #ffffff; }
+
+/* --- Notificaciones (flotantes y en el panel) --- */
+.notification-row .notification-background .notification {
+  background: rgba(24, 25, 27, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 18px;
+}
+.floating-notifications .notification {
+  background: rgba(16, 17, 18, 0.95);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.40), inset 0 1px rgba(255, 255, 255, 0.06);
+}
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .summary { color: #f4f5f6; font-weight: 600; }
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .body { color: #c8ccd0; }
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time { color: #6f7376; font-size: 11px; }
+.notification-row .notification-background .notification.critical {
+  border: 1px solid rgba(184, 101, 106, 0.55);   /* rojo apagado: lo único con color */
+}
+.notification-row .notification-background .notification .notification-action > button {
+  background: rgba(255, 255, 255, 0.07); color: #e4e6e7; border: none; border-radius: 10px; box-shadow: none;
+}
+.notification-row .notification-background .notification .notification-action > button:hover { background: rgba(255, 255, 255, 0.16); }
+.close-button { background: rgba(255, 255, 255, 0.12); color: #e4e6e7; box-shadow: none; border: none; }
+.close-button:hover { background: rgba(255, 255, 255, 0.25); }
+
+.notification-group .notification-group-headers .notification-group-header { color: #a3a8ac; }
+.notification-group .notification-group-buttons button { background: rgba(255,255,255,.08); color: #c8ccd0; border: none; box-shadow: none; border-radius: 99px; }

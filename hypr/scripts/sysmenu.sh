@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Mini-monitor del sistema (CPU / RAM / TEMP / DISCO) — estética lila.
+# Mini-monitor del sistema (CPU / RAM / TEMP / DISCO) — estética Niebla.
 # Se refresca cada 2s; q para cerrar.
 
 R=$'\033[0m'; B=$'\033[1m'
-L1=$'\033[38;2;201;168;212m'; L2=$'\033[38;2;179;136;196m'
-DIM=$'\033[38;2;125;115;135m'; TXT=$'\033[38;2;223;218;230m'
-YEL=$'\033[38;2;224;175;104m'; RED=$'\033[38;2;255;107;129m'
+L1=$'\033[38;2;200;204;208m'; L2=$'\033[38;2;139;152;166m'
+DIM=$'\033[38;2;106;109;112m'; TXT=$'\033[38;2;212;215;217m'
+YEL=$'\033[38;2;196;180;154m'; RED=$'\033[38;2;201;130;135m'
 
 bar() {  # $1 = porcentaje
     local p=${1%.*} w=22 f i out="" col=$L1

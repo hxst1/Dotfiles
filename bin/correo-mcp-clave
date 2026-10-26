@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Guarda la contraseña IMAP de una cuenta en el llavero (gnome-keyring), pidiéndola
+# en un diálogo gráfico: no pasa por la terminal ni queda en el historial.
+# Uso: correo-mcp-clave <dirección>
+set -euo pipefail
+addr=${1:?uso: correo-mcp-clave <dirección>}
+pass=$(/usr/bin/ksshaskpass "Contraseña IMAP de ${addr} (para que Claude cree borradores)") || exit 1
+[[ -n $pass ]] || { echo "Cancelado: contraseña vacía" >&2; exit 1; }
+printf '%s' "$pass" | secret-tool store --label="correo-mcp: ${addr}" service correo-mcp account "$addr"
+echo "Guardada la contraseña de ${addr} en el llavero."

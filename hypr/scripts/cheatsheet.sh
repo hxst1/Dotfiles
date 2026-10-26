@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# Guía de atajos — estética lila a juego con los bordes de Hyprland.
+# Guía de atajos — estética Niebla (grises fríos).
 # Se abre en una ventana flotante de kitty (ver ~/.local/bin/teclas).
 # Scroll: ↑/↓ o j/k, PgUp/PgDn o espacio, g/G inicio/fin, q para salir.
 
-# Paleta (24-bit) tomada del gradiente de bordes: c9a8d4 / b388c4
+# Paleta Niebla (24-bit): plata c8ccd0 / acero 8b98a6
 R=$'\033[0m'; B=$'\033[1m'
-L1=$'\033[38;2;201;168;212m'   # lila claro
-L2=$'\033[38;2;179;136;196m'   # púrpura
-DIM=$'\033[38;2;125;115;135m'  # apagado
-TXT=$'\033[38;2;223;218;230m'  # texto
+L1=$'\033[38;2;200;204;208m'   # plata
+L2=$'\033[38;2;139;152;166m'   # acero
+DIM=$'\033[38;2;106;109;112m'  # apagado
+TXT=$'\033[38;2;212;215;217m'  # texto
 
 sec() { printf "\n   ${L2}${B}%b  %s${R}\n" "$1" "$2"; }
 # Pad por nº de caracteres (${#key}), no por bytes: así las flechas ←↑↓→ alinean.

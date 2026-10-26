@@ -1,0 +1,22 @@
+# Cuentas para el MCP de correo (bin/correo-mcp). Copiar a
+# ~/.config/correo-mcp/cuentas.toml y poner las tuyas.
+#
+# Las contraseñas NO van aquí: van al llavero (gnome-keyring) con
+#   correo-mcp-clave <dirección>
+# Gmail necesita una "contraseña de aplicación" (myaccount.google.com/apppasswords).
+
+[cuenta.trabajo]
+nombre = "Tu Nombre"
+direccion = "tu@empresa.com"
+imap = "mail.empresa.com"
+# usuario = "tu@empresa.com"        # por defecto, la dirección
+# puerto = 993                      # por defecto
+# borradores = "INBOX.Drafts"       # si no la detecta sola (RFC 6154)
+# Si el hosting sirve el correo con un certificado a nombre suyo (Dinahosting:
+# *.correoseguro.dinaserver.com), verifica contra ese nombre en vez de desactivar TLS:
+# tls_nombre = "mail.correoseguro.dinaserver.com"
+
+# [cuenta.personal]
+# nombre = "Tu Nombre"
+# direccion = "tu@gmail.com"
+# imap = "imap.gmail.com"

@@ -1,0 +1,427 @@
+#!/usr/bin/env python3
+"""Servidor MCP de correo para Claude Code (y por tanto para Beacon Split).
+
+Claude puede LEER correos y CREAR BORRADORES; nunca envía. El borrador se guarda
+por IMAP en la carpeta Borradores de la cuenta, así que aparece a la vez en
+Thunderbird, en la web y en el móvil: lo revisas y lo envías tú.
+
+Cuentas en ~/.config/correo-mcp/cuentas.toml. Las contraseñas NO están ahí: se
+leen del llavero (gnome-keyring) con
+    secret-tool lookup service correo-mcp account <dirección>
+y se guardan con ~/.local/bin/correo-mcp-clave <dirección>.
+
+Protocolo: MCP sobre stdio (JSON-RPC, un mensaje por línea). Solo stdlib.
+"""
+
+import email
+import email.policy
+import html
+import imaplib
+import json
+import re
+import socket
+import ssl
+import subprocess
+import sys
+import time
+import tomllib
+from datetime import date, timedelta
+from email.message import EmailMessage
+from email.utils import formataddr, formatdate, getaddresses, make_msgid, parseaddr
+from pathlib import Path
+
+CONFIG = Path.home() / ".config" / "correo-mcp" / "cuentas.toml"
+SERVER_INFO = {"name": "correo", "version": "1.0.0"}
+MAX_BODY_CHARS = 20_000
+SCAN_LIMIT = 400  # cabeceras como mucho que se revisan por búsqueda
+socket.setdefaulttimeout(30)
+
+
+# ---------------------------------------------------------------- cuentas
+
+
+def load_accounts() -> dict[str, dict]:
+    data = tomllib.loads(CONFIG.read_text())
+    accounts = {}
+    for acc_id, acc in data.get("cuenta", {}).items():
+        acc.setdefault("puerto", 993)
+        acc.setdefault("usuario", acc["direccion"])
+        acc.setdefault("nombre", "")
+        accounts[acc_id] = acc
+    return accounts
+
+
+def password_for(acc: dict) -> str:
+    out = subprocess.run(
+        ["secret-tool", "lookup", "service", "correo-mcp", "account", acc["direccion"]],
+        capture_output=True,
+        text=True,
+    )
+    if out.returncode != 0 or not out.stdout:
+        raise RuntimeError(
+            f"No hay contraseña guardada para {acc['direccion']}. "
+            f"Guárdala con: correo-mcp-clave {acc['direccion']}"
+        )
+    return out.stdout
+
+
+class IMAP4_SSL_Named(imaplib.IMAP4_SSL):
+    """IMAP sobre TLS verificando el certificado contra otro nombre.
+
+    Para hostings que sirven el correo de tu dominio con un certificado del suyo
+    (Dinahosting: mail.tudominio.com con *.correoseguro.dinaserver.com). Se
+    verifica todo — cadena y nombre —, solo que contra el nombre que el
+    certificado sí lleva, en vez de desactivar la verificación.
+    """
+
+    def __init__(self, host: str, port: int, tls_name: str):
+        self.tls_name = tls_name
+        super().__init__(host, port, ssl_context=ssl.create_default_context())
+
+    def _create_socket(self, timeout):
+        sock = socket.create_connection((self.host, self.port), timeout)
+        return self.ssl_context.wrap_socket(sock, server_hostname=self.tls_name)
+
+
+def connect(acc: dict) -> imaplib.IMAP4_SSL:
+    if acc.get("tls_nombre"):
+        conn = IMAP4_SSL_Named(acc["imap"], acc["puerto"], acc["tls_nombre"])
+    else:
+        conn = imaplib.IMAP4_SSL(acc["imap"], acc["puerto"])
+    conn.login(acc["usuario"], password_for(acc))
+    return conn
+
+
+def account(acc_id: str) -> dict:
+    accounts = load_accounts()
+    if acc_id not in accounts:
+        raise ValueError(f"Cuenta desconocida '{acc_id}'. Cuentas: {', '.join(accounts)}")
+    return accounts[acc_id]
+
+
+# ---------------------------------------------------------------- IMAP
+
+
+LIST_RE = re.compile(r'\((?P<flags>[^)]*)\) (?P<delim>"[^"]*"|NIL) (?P<name>.+)')
+
+
+def folders(conn: imaplib.IMAP4_SSL) -> list[tuple[str, str]]:
+    """(flags, nombre tal cual lo da el servidor, ya entre comillas si hacía falta)."""
+    result = []
+    for raw in conn.list()[1] or []:
+        m = LIST_RE.match(raw.decode(errors="replace"))
+        if m:
+            result.append((m["flags"], m["name"]))
+    return result
+
+
+def quoted(name: str) -> str:
+    return name if name.startswith('"') else f'"{name}"'
+
+
+def drafts_folder(conn: imaplib.IMAP4_SSL, acc: dict) -> str:
+    if acc.get("borradores"):
+        return quoted(acc["borradores"])
+    all_folders = folders(conn)
+    for flags, name in all_folders:  # RFC 6154: la carpeta marcada como \Drafts
+        if "\\Drafts" in flags:
+            return quoted(name)
+    for wanted in ("Drafts", "INBOX.Drafts", "Borradores", "INBOX.Borradores"):
+        for _, name in all_folders:
+            if name.strip('"') == wanted:
+                return quoted(name)
+    raise RuntimeError("No encuentro la carpeta de borradores; ponla en cuentas.toml (borradores = ...)")
+
+
+def decode(value: str | None) -> str:
+    if not value:
+        return ""
+    return str(email.header.make_header(email.header.decode_header(value)))
+
+
+def text_of(msg: email.message.Message) -> str:
+    """El cuerpo legible: text/plain si lo hay, si no el HTML sin etiquetas."""
+    plain, rich = None, None
+    for part in msg.walk() if msg.is_multipart() else [msg]:
+        if part.get_content_disposition() == "attachment":
+            continue
+        ctype = part.get_content_type()
+        if ctype not in ("text/plain", "text/html"):
+            continue
+        payload = part.get_payload(decode=True) or b""
+        text = payload.decode(part.get_content_charset() or "utf-8", errors="replace")
+        if ctype == "text/plain" and plain is None:
+            plain = text
+        elif ctype == "text/html" and rich is None:
+            rich = text
+    if plain is not None:
+        return plain
+    if rich is not None:
+        rich = re.sub(r"(?is)<(script|style).*?</\1>", "", rich)
+        rich = re.sub(r"(?i)<br\s*/?>|</p>|</div>|</tr>", "\n", rich)
+        return html.unescape(re.sub(r"<[^>]+>", "", rich))
+    return ""
+
+
+# ---------------------------------------------------------------- herramientas
+
+
+def tool_list_accounts(_args: dict) -> str:
+    lines = []
+    for acc_id, acc in load_accounts().items():
+        lines.append(f"- {acc_id}: {formataddr((acc['nombre'], acc['direccion']))}")
+    return "Cuentas configuradas:\n" + "\n".join(lines)
+
+
+def tool_search_emails(args: dict) -> str:
+    acc = account(args["account"])
+    folder = args.get("folder", "INBOX")
+    query = (args.get("query") or "").lower()
+    days = int(args.get("since_days", 30))
+    limit = min(int(args.get("limit", 15)), 50)
+    conn = connect(acc)
+    try:
+        conn.select(quoted(folder), readonly=True)
+        since = (date.today() - timedelta(days=days)).strftime("%d-%b-%Y")
+        criteria = ["SINCE", since] + (["UNSEEN"] if args.get("unread_only") else [])
+        uids = conn.uid("SEARCH", None, *criteria)[1][0].split()[-SCAN_LIMIT:]
+        found = []
+        for i in range(0, len(uids), 100):
+            chunk = b",".join(uids[i : i + 100])
+            typ, data = conn.uid(
+                "FETCH", chunk, "(FLAGS BODY.PEEK[HEADER.FIELDS (FROM TO SUBJECT DATE MESSAGE-ID)])"
+            )
+            for item in data:
+                if not isinstance(item, tuple):
+                    continue
+                meta = item[0].decode(errors="replace")
+                uid = re.search(r"UID (\d+)", meta)
+                head = email.message_from_bytes(item[1])
+                row = {
+                    "uid": uid.group(1) if uid else "?",
+                    "from": decode(head["From"]),
+                    "to": decode(head["To"]),
+                    "subject": decode(head["Subject"]),
+                    "date": head["Date"] or "",
+                    "unread": "\\Seen" not in meta,
+                }
+                haystack = f"{row['from']} {row['to']} {row['subject']}".lower()
+                if not query or all(word in haystack for word in query.split()):
+                    found.append(row)
+    finally:
+        conn.logout()
+    found.sort(key=lambda r: int(r["uid"]) if r["uid"].isdigit() else 0, reverse=True)
+    if not found:
+        return f"No hay correos en {folder} de los últimos {days} días que coincidan."
+    out = [f"{len(found[:limit])} correo(s) en {folder} ({acc['direccion']}), más recientes primero:"]
+    for r in found[:limit]:
+        mark = "● " if r["unread"] else ""
+        out.append(f"- uid {r['uid']} · {mark}{r['date']}\n  De: {r['from']}\n  Asunto: {r['subject']}")
+    return "\n".join(out)
+
+
+def fetch_message(conn: imaplib.IMAP4_SSL, folder: str, uid: str) -> email.message.Message:
+    conn.select(quoted(folder), readonly=True)
+    typ, data = conn.uid("FETCH", uid, "(BODY.PEEK[])")
+    raw = next((item[1] for item in data if isinstance(item, tuple)), None)
+    if raw is None:
+        raise ValueError(f"No existe el correo uid {uid} en {folder}")
+    return email.message_from_bytes(raw, policy=email.policy.default)
+
+
+def tool_read_email(args: dict) -> str:
+    acc = account(args["account"])
+    folder = args.get("folder", "INBOX")
+    conn = connect(acc)
+    try:
+        msg = fetch_message(conn, folder, str(args["uid"]))
+    finally:
+        conn.logout()
+    body = text_of(msg).strip()
+    if len(body) > MAX_BODY_CHARS:
+        body = body[:MAX_BODY_CHARS] + "\n[…recortado…]"
+    attachments = [p.get_filename() for p in msg.walk() if p.get_content_disposition() == "attachment"]
+    head = [
+        f"De: {decode(msg['From'])}",
+        f"Para: {decode(msg['To'])}",
+        *([f"Cc: {decode(msg['Cc'])}"] if msg["Cc"] else []),
+        f"Fecha: {msg['Date']}",
+        f"Asunto: {decode(msg['Subject'])}",
+        *([f"Adjuntos: {', '.join(filter(None, attachments))}"] if attachments else []),
+    ]
+    return "\n".join(head) + "\n\n" + body
+
+
+def addresses(value) -> list[str]:
+    if not value:
+        return []
+    if isinstance(value, str):
+        value = [value]
+    return [formataddr(pair) for pair in getaddresses(value) if pair[1]]
+
+
+def tool_create_draft(args: dict) -> str:
+    acc = account(args["account"])
+    msg = EmailMessage()
+    msg["From"] = formataddr((acc["nombre"], acc["direccion"]))
+    subject = args.get("subject", "")
+    to = addresses(args.get("to"))
+    conn = connect(acc)
+    try:
+        reply_uid = args.get("reply_to_uid")
+        if reply_uid:  # respuesta en el mismo hilo
+            original = fetch_message(conn, args.get("reply_folder", "INBOX"), str(reply_uid))
+            original_id = original["Message-ID"]
+            if original_id:
+                msg["In-Reply-To"] = original_id
+                msg["References"] = f"{original['References'] or ''} {original_id}".strip()
+            if not subject:
+                prev = decode(original["Subject"])
+                subject = prev if prev.lower().startswith(("re:", "re :")) else f"Re: {prev}"
+            if not to:
+                to = addresses(original["Reply-To"] or original["From"])
+        if not to:
+            raise ValueError("Falta el destinatario (to)")
+        msg["To"] = ", ".join(to)
+        if args.get("cc"):
+            msg["Cc"] = ", ".join(addresses(args["cc"]))
+        if args.get("bcc"):
+            msg["Bcc"] = ", ".join(addresses(args["bcc"]))
+        msg["Subject"] = subject
+        msg["Date"] = formatdate(localtime=True)
+        msg["Message-ID"] = make_msgid(domain=acc["direccion"].split("@")[-1])
+        msg.set_content(args["body"])
+        folder = drafts_folder(conn, acc)
+        typ, _ = conn.append(folder, r"(\Draft \Seen)", imaplib.Time2Internaldate(time.time()), msg.as_bytes())
+        if typ != "OK":
+            raise RuntimeError(f"El servidor rechazó el borrador ({typ})")
+    finally:
+        conn.logout()
+    return (
+        f"Borrador guardado en {folder.strip(chr(34))} de {acc['direccion']}.\n"
+        f"Para: {msg['To']}\nAsunto: {subject}\n"
+        "No se ha enviado: el usuario lo revisa y lo envía desde su cliente."
+    )
+
+
+ACCOUNT_PROP = {"type": "string", "description": "Account id from list_accounts (e.g. 'gmail', 'myp')."}
+
+TOOLS = [
+    {
+        "name": "list_accounts",
+        "description": "List the user's configured email accounts (id, name, address). Call this first to pick the account.",
+        "inputSchema": {"type": "object", "properties": {}},
+        "handler": tool_list_accounts,
+    },
+    {
+        "name": "search_emails",
+        "description": (
+            "Search recent emails in one account by words in the sender, recipient or subject. "
+            "Returns uid, date, sender and subject, newest first. Read-only; does not mark as read."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "account": ACCOUNT_PROP,
+                "query": {"type": "string", "description": "Words that must all appear in From/To/Subject. Empty = all."},
+                "folder": {"type": "string", "description": "IMAP folder, default INBOX."},
+                "since_days": {"type": "integer", "description": "How many days back, default 30."},
+                "unread_only": {"type": "boolean"},
+                "limit": {"type": "integer", "description": "Max results, default 15, max 50."},
+            },
+            "required": ["account"],
+        },
+        "handler": tool_search_emails,
+    },
+    {
+        "name": "read_email",
+        "description": "Read one email's headers and text body by uid (from search_emails). Read-only.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "account": ACCOUNT_PROP,
+                "uid": {"type": "string"},
+                "folder": {"type": "string", "description": "Default INBOX."},
+            },
+            "required": ["account", "uid"],
+        },
+        "handler": tool_read_email,
+    },
+    {
+        "name": "create_draft",
+        "description": (
+            "Save an email as a DRAFT in the account's Drafts folder. It is never sent: the user reviews and "
+            "sends it from their mail client. To reply in-thread, pass reply_to_uid (subject and recipient "
+            "default to the original's). Write the body as plain text in the user's language and voice."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "account": ACCOUNT_PROP,
+                "to": {"type": "array", "items": {"type": "string"}, "description": "Recipients, 'Name <addr>' or addr."},
+                "cc": {"type": "array", "items": {"type": "string"}},
+                "bcc": {"type": "array", "items": {"type": "string"}},
+                "subject": {"type": "string"},
+                "body": {"type": "string", "description": "Plain-text body, including greeting and sign-off."},
+                "reply_to_uid": {"type": "string", "description": "uid of the email being answered (optional)."},
+                "reply_folder": {"type": "string", "description": "Folder of that email, default INBOX."},
+            },
+            "required": ["account", "body"],
+        },
+        "handler": tool_create_draft,
+    },
+]
+HANDLERS = {t["name"]: t["handler"] for t in TOOLS}
+
+
+# ---------------------------------------------------------------- MCP stdio
+
+
+def send(message: dict) -> None:
+    sys.stdout.write(json.dumps(message, ensure_ascii=False) + "\n")
+    sys.stdout.flush()
+
+
+def handle(request: dict) -> dict | None:
+    method, req_id = request.get("method"), request.get("id")
+    if req_id is None:  # notificación (p. ej. notifications/initialized)
+        return None
+    if method == "initialize":
+        version = request.get("params", {}).get("protocolVersion", "2025-06-18")
+        result = {"protocolVersion": version, "capabilities": {"tools": {}}, "serverInfo": SERVER_INFO}
+    elif method == "ping":
+        result = {}
+    elif method == "tools/list":
+        result = {"tools": [{k: v for k, v in t.items() if k != "handler"} for t in TOOLS]}
+    elif method == "tools/call":
+        params = request.get("params", {})
+        handler = HANDLERS.get(params.get("name"))
+        if handler is None:
+            return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32602, "message": "Unknown tool"}}
+        try:
+            text, is_error = handler(params.get("arguments") or {}), False
+        except Exception as exc:  # el error vuelve a Claude como texto, no tumba el servidor
+            text, is_error = f"Error: {exc}", True
+        result = {"content": [{"type": "text", "text": text}], "isError": is_error}
+    else:
+        return {"jsonrpc": "2.0", "id": req_id, "error": {"code": -32601, "message": f"Method not found: {method}"}}
+    return {"jsonrpc": "2.0", "id": req_id, "result": result}
+
+
+def main() -> None:
+    for line in sys.stdin:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            request = json.loads(line)
+        except json.JSONDecodeError:
+            send({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "Parse error"}})
+            continue
+        response = handle(request)
+        if response is not None:
+            send(response)
+
+
+if __name__ == "__main__":
+    main()

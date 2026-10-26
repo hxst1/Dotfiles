@@ -1,31 +1,40 @@
+/* ===== Wofi · tema Niebla — estilo Spotlight =====
+   Cristal oscuro (blur vía layerrule de Hyprland), sin bordes de color. */
+
 * {
-    font-family: "JetBrainsMono Nerd Font", sans-serif;
+    font-family: "Inter", "JetBrainsMono Nerd Font", sans-serif;
     font-size: 14px;
 }
 
 window {
     margin: 0px;
-    background-color: rgba(26, 22, 34, 0.96);
-    border: 2px solid #c9a8d4;
-    border-radius: 18px;
+    background-color: rgba(20, 21, 22, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
 }
 
 #input {
-    margin: 12px;
-    padding: 10px 14px;
+    margin: 10px 10px 4px 10px;
+    padding: 12px 16px;
     border: none;
-    border-radius: 12px;
-    background-color: rgba(74, 61, 84, 0.6);
-    color: #f0e6e0;
-    font-size: 16px;
+    border-radius: 14px;
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #f4f5f6;
+    font-size: 19px;
+    font-weight: 300;
+    box-shadow: none;
+    outline: none;
 }
 
 #input:focus {
-    border: 1px solid #c9a8d4;
+    border: none;
+    box-shadow: none;
 }
 
+#input image { color: #8a8f93; }
+
 #inner-box {
-    margin: 8px;
+    margin: 4px 6px 8px 6px;
     background-color: transparent;
 }
 
@@ -34,30 +43,27 @@ window {
     background-color: transparent;
 }
 
-#scroll {
-    margin: 0px;
-}
+#scroll { margin: 0px; }
 
 #text {
-    color: #f0e6e0;
-    margin: 0px 8px;
+    color: #c8ccd0;
+    margin: 0px 10px;
 }
 
 #entry {
-    padding: 8px;
+    padding: 7px 8px;
     border-radius: 10px;
-    margin: 2px 6px;
+    margin: 1px 4px;
 }
 
 #entry:selected {
-    background-color: rgba(201, 168, 212, 0.30);
+    background-color: rgba(255, 255, 255, 0.10);
+    outline: none;
 }
 
 #entry:selected #text {
-    color: #e8b88a;
-    font-weight: bold;
+    color: #ffffff;
+    font-weight: 500;
 }
 
-#text:selected {
-    color: #e8b88a;
-}
+#text:selected { color: #ffffff; }

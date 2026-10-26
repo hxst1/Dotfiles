@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Abre la guía de atajos en una ventana flotante y centrada de kitty.
+# Uso: `teclas` desde la terminal, o desde wofi ("Guía de atajos").
+
+kitty --class cheatsheet-flotante -e "$HOME/.config/hypr/scripts/cheatsheet.sh" &
+
+# Flota / dimensiona / centra la ventana (sin window rules; 0.55 las migró a Lua).
+sleep 0.3
+hyprctl dispatch togglefloating active        >/dev/null 2>&1 || true
+hyprctl dispatch resizeactive exact 940 900    >/dev/null 2>&1 || true
+hyprctl dispatch centerwindow                  >/dev/null 2>&1 || true

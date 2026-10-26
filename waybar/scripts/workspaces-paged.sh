@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # Workspaces paginados para waybar: página 1 = escritorios 1-5, página 2 = 6-10.
-# Flor = escritorio activo · anillo = con ventanas · punto = vacío.
-# El chevron derecho se pone dorado si hay ventanas en la otra página.
+# Punto lleno blanco = activo · punto gris = con ventanas · punto tenue = vacío.
+# El chevron se ilumina si hay ventanas en la otra página.
 # Uso: sin args = stream JSON para waybar · toggle = saltar de página · next/prev = ciclar
 
-ACTIVE=$'\U000f024a'   # nf-md-flower — sakura
-OCC=$'\U000f0766'      # nf-md-circle-outline
-EMPTY=$'\U000f09de'    # nf-md-circle-medium
+ACTIVE=$'\U000f0765'   # nf-md-circle
+OCC=$'\U000f09de'      # nf-md-circle-medium
+EMPTY=$'\U000f09df'    # nf-md-circle-small
 NEXT=$'\U000f0142'     # nf-md-chevron-right
 PREV=$'\U000f0141'     # nf-md-chevron-left
 
-# Paleta Sakura
-C_ACTIVE="#d47a9a"     # rosa — la flor
-C_OCC="#b388c4"        # púrpura — ocupado
-C_EMPTY="#6b5d7a"      # apagado — vacío
-C_HINT="#e8b88a"       # dorado — hay ventanas en la otra página
+# Paleta Niebla
+C_ACTIVE="#f4f5f6"     # blanco — activo
+C_OCC="#8a8f93"        # niebla — ocupado
+C_EMPTY="#5b5e60"      # apagado — vacío
+C_HINT="#c8ccd0"       # plata — hay ventanas en la otra página
 
 cur_ws() { hyprctl -j activeworkspace | jq '.id'; }
 
@@ -38,7 +38,7 @@ print_state() {
 
     if (( cur >= 6 && cur <= 10 )); then start=6; else start=1; fi
 
-    # ¿Hay ventanas en la otra página? → chevron dorado
+    # ¿Hay ventanas en la otra página? → chevron iluminado
     chevron=$C_EMPTY
     local lo hi
     if (( start == 1 )); then lo=6 hi=10; else lo=1 hi=5; fi

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Abre el mini-monitor en una ventana flotante y centrada (lo usa el clic en runcat).
+# Abre el mini-monitor en una ventana flotante y centrada (lo usa el clic en la pill de stats CPU/temp/disco).
 # Si ya está abierto, lo cierra (toggle).
 if pkill -f "hypr/scripts/sysmenu.sh"; then exit 0; fi
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=Portapapeles iPhone → Arch por la red local
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.local/bin/iphone-clip
+# wl-copy/notify-send necesitan la sesión de Hyprland
+Environment=WAYLAND_DISPLAY=wayland-1
+Environment=XDG_RUNTIME_DIR=%t
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
